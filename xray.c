@@ -99,8 +99,9 @@ FARPROC myHook() {
 }
 
 //DLL BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
-int main() {
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
 
+    if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
 
     BYTE* baseAddress = (BYTE*)GetModuleHandle("KERNEL32.Dll");
     if (baseAddress == NULL) {
@@ -175,3 +176,4 @@ int main() {
     return TRUE;
 }
 
+}
