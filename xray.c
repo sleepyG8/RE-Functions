@@ -1,15 +1,26 @@
 #include <windows.h>
+#include <stdio.h>
+
 /*
 Sleepy - xray
 Compile: cl /LD .\xray.c
 
 Inject into a process and read the context right before a function is called
 
-You will need to pipe the output to a msgBox or something for Guis
-
 */
+
 #define DLL "api-ms-win-core-memory-l1-1-0.dll"
 #define func "VirtualProtect"
+
+// Set a console so it prints for GUI apps
+void attach_console() {
+  AllocConsole();
+
+  FILE* f;
+  freopen_s(&f, "CONOUT$", "w", stdout);
+  freopen_s(&f, "CONOUT$", "w", stderr);
+  freopen_s(&f, "CONIN$", "r", stdin);
+}
 
 BOOL getThreads(DWORD *threadId) {
     CONTEXT context;
@@ -77,6 +88,7 @@ FARPROC funcAddr;
 
 FARPROC myHook() {
 
+    attach_console();
    // Getting thread context using GetCurrentThreadId() inside hooked function
    if (!getThreads(GetCurrentThreadId())) {
     printf("error %lu\n", GetLastError());
@@ -86,9 +98,9 @@ FARPROC myHook() {
     return funcAddr;
 }
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+//DLL BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
+int main() {
 
-if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
 
     BYTE* baseAddress = (BYTE*)GetModuleHandle("KERNEL32.Dll");
     if (baseAddress == NULL) {
@@ -163,4 +175,3 @@ if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
     return TRUE;
 }
 
-}
